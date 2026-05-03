@@ -13,7 +13,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TRefresh_tokens {
+public class TRefreshToken {
     @Id
     @UuidGenerator
     @Column(name = "id", columnDefinition = "CHAR(36)", nullable = false, updatable = false)
@@ -31,7 +31,7 @@ public class TRefresh_tokens {
 
     private Boolean revocado = false;
 
-    @Column(name = "fecha_at", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @PrePersist
