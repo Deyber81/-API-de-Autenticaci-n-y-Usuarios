@@ -9,4 +9,5 @@ import api.login_jwt.entity.TUsuario;
 public interface RepoUsuario extends JpaRepository<TUsuario, String> {
     boolean existsByEmail(String email);
 
+    boolean existsByEmailAndIdNot(String email, String id);
 }

@@ -14,41 +14,47 @@ import lombok.Getter;
 public class DtoMessage {
 
     private String type;
-    private List<String> messages;
+    private String message;
+
+    private List<String> details;
+
     private Map<String, String> fieldErrors;
 
     public DtoMessage() {
         this.type = "error";
-        this.messages = new ArrayList<>();
+        this.details = new ArrayList<>();
         this.fieldErrors = new HashMap<>();
     }
 
     public boolean hasErrors() {
-        return !this.messages.isEmpty() || !this.fieldErrors.isEmpty();
+        return !details.isEmpty() || !fieldErrors.isEmpty();
     }
 
-    public void addMessage(String message) {
-        this.messages.add(message);
+    public void addDetail(String detail) {
+        this.details.add(detail);
     }
 
     public void addFieldError(String field, String errorMessage) {
         this.fieldErrors.put(field, errorMessage);
     }
 
-    public void setSuccess() {
+    public void setSuccess(String message) {
         this.type = "success";
+        this.message = message;
     }
 
-    public void setWarning() {
-        this.type = "warning";
-    }
-
-    public void setError() {
+    public void setError(String message) {
         this.type = "error";
+        this.message = message;
     }
 
-    public void setException() {
+    public void setWarning(String message) {
+        this.type = "warning";
+        this.message = message;
+    }
+
+    public void setException(String message) {
         this.type = "exception";
+        this.message = message;
     }
-
 }
