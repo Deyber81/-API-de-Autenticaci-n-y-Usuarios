@@ -20,6 +20,7 @@ public interface UsuarioMapper {
     @Mapping(target = "fechaCreacion", ignore = true)
     @Mapping(target = "fechaActualizacion", ignore = true)
     @Mapping(target = "emailVerificado", constant = "false")
+    @Mapping(target = "estado", ignore = true)
     @Mapping(target = "rol", constant = "USER")
     TUsuario toEntity(RequestCreateUser request);
 
@@ -28,5 +29,8 @@ public interface UsuarioMapper {
     @Mapping(target = "rol", ignore = true)
     @Mapping(target = "estado", ignore = true)
     @Mapping(target = "passwordHash", ignore = true)
+    @Mapping(target = "emailVerificado", constant = "false")
+    @Mapping(target = "fechaCreacion", ignore = true)
+    @Mapping(target = "fechaActualizacion", ignore = true)
     void updateUser(RequestUpdateUser dto, @MappingTarget TUsuario entity);
 }
