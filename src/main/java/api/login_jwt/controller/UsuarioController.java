@@ -72,4 +72,14 @@ public class UsuarioController {
                                 ApiResponse.success("Usuario actualizado correctamente", response));
         }
 
+        @DeleteMapping("/{id}")
+        public ResponseEntity<ApiResponse<Void>> eliminarUsuario(
+                        @PathVariable String id) {
+
+                usuarioService.eliminarUsuario(id);
+
+                return ResponseEntity.ok(
+                                ApiResponse.success("Usuario eliminado correctamente", null));
+        }
+
 }
