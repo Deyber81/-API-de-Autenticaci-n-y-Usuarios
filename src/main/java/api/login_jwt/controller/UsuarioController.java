@@ -10,6 +10,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import api.login_jwt.dto.ApiResponse;
 import api.login_jwt.dto.pagination.PaginatedResponse;
 import api.login_jwt.dto.usuario.Request.RequestCreateUser;
+import api.login_jwt.dto.usuario.Request.RequestUpdateUser;
 import api.login_jwt.dto.usuario.response.UsuarioResponse;
 import api.login_jwt.services.UsuarioService;
 import jakarta.validation.Valid;
@@ -58,6 +59,17 @@ public class UsuarioController {
 
                 return ResponseEntity.ok(
                                 ApiResponse.success("Usuario encontrado", response));
+        }
+
+        @PutMapping("/{id}")
+        public ResponseEntity<ApiResponse<UsuarioResponse>> actualizarUsuario(
+                        @PathVariable String id,
+                        @Valid @RequestBody RequestUpdateUser request) {
+
+                UsuarioResponse response = usuarioService.actualizarUsuario(id, request);
+
+                return ResponseEntity.ok(
+                                ApiResponse.success("Usuario actualizado correctamente", response));
         }
 
 }
