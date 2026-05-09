@@ -2,12 +2,15 @@ package api.login_jwt.services;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import api.login_jwt.dto.pagination.PaginatedResponse;
 import api.login_jwt.dto.pagination.PaginationResponse;
 import api.login_jwt.dto.usuario.Request.RequestCreateUser;
 import api.login_jwt.dto.usuario.response.UsuarioResponse;
 import api.login_jwt.entity.TUsuario;
+import api.login_jwt.exception.ResourceNotFoundException;
+import api.login_jwt.mapper.UsuarioMapper;
 import api.login_jwt.repository.RepoUsuario;
 import api.login_jwt.validators.UsuarioValidator;
 import lombok.RequiredArgsConstructor;
@@ -22,49 +25,49 @@ import org.springframework.data.domain.Pageable;
 @RequiredArgsConstructor
 public class UsuarioService {
 
-    private final RepoUsuario repoUsuario;
-    private final PasswordEncoder passwordEncoder;
-    private final UsuarioValidator usuarioValidator;
+        private final RepoUsuario repoUsuario;
+        private final PasswordEncoder passwordEncoder;
+        private final UsuarioValidator usuarioValidator;
+        private final UsuarioMapper usuarioMapper;
 
-    public UsuarioResponse crearUsuario(RequestCreateUser request) {
+        public UsuarioResponse crearUsuario(RequestCreateUser request) {
+                usuarioValidator.validarCreacion(request);
 
-        usuarioValidator.validarCreacion(request);
+                TUsuario usuario = usuarioMapper.toEntity(request);
+                usuario.setPasswordHash(passwordEncoder.encode(request.getPassword()));
 
-        TUsuario usuario = new TUsuario();
-        usuario.setNombre(request.getNombre());
-        usuario.setEmail(request.getEmail());
-        usuario.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+                return usuarioMapper.toDto(repoUsuario.save(usuario));
+        }
 
-        TUsuario usuarioGuardado = repoUsuario.save(usuario);
+        @Transactional(readOnly = true)
+        public PaginatedResponse<List<UsuarioResponse>> listarUsuarios(int page, int size) {
+                Pageable pageable = PageRequest.of(page, size);
+                Page<TUsuario> usuariosPage = repoUsuario.findAll(pageable);
 
-        return new UsuarioResponse(
-                String.valueOf(usuarioGuardado.getId()),
-                usuarioGuardado.getNombre(),
-                usuarioGuardado.getEmail());
-    }
+                List<UsuarioResponse> usuarios = usuariosPage.getContent()
+                                .stream()
+                                .map(usuarioMapper::toDto)
+                                .toList();
 
-    public PaginatedResponse<List<UsuarioResponse>> listarUsuarios(int page, int size) {
+                PaginationResponse pagination = new PaginationResponse(
+                                usuariosPage.getNumber(),
+                                usuariosPage.getSize(),
+                                usuariosPage.getTotalElements(),
+                                usuariosPage.getTotalPages(),
+                                usuariosPage.isFirst(),
+                                usuariosPage.isLast());
 
-        Pageable pageable = PageRequest.of(page, size);
+                return new PaginatedResponse<>(usuarios, pagination);
+        }
 
-        Page<TUsuario> usuariosPage = repoUsuario.findAll(pageable);
+        @Transactional(readOnly = true)
+        public UsuarioResponse buscarPorId(String id) {
+                return usuarioMapper.toDto(findOrThrow(id));
+        }
 
-        List<UsuarioResponse> usuarios = usuariosPage.getContent()
-                .stream()
-                .map(usuario -> new UsuarioResponse(
-                        String.valueOf(usuario.getId()),
-                        usuario.getNombre(),
-                        usuario.getEmail()))
-                .toList();
+        private TUsuario findOrThrow(String id) {
+                return repoUsuario.findById(id)
+                                .orElseThrow(() -> new ResourceNotFoundException("Usuario", id));
+        }
 
-        PaginationResponse pagination = new PaginationResponse(
-                usuariosPage.getNumber(),
-                usuariosPage.getSize(),
-                usuariosPage.getTotalElements(),
-                usuariosPage.getTotalPages(),
-                usuariosPage.isFirst(),
-                usuariosPage.isLast());
-
-        return new PaginatedResponse<>(usuarios, pagination);
-    }
 }
