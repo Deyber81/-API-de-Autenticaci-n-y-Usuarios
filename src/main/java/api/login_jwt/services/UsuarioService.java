@@ -9,6 +9,8 @@ import api.login_jwt.entity.TUsuario;
 import api.login_jwt.repository.RepoUsuario;
 import api.login_jwt.validators.UsuarioValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 @RequiredArgsConstructor
@@ -33,5 +35,12 @@ public class UsuarioService {
                 String.valueOf(usuarioGuardado.getId()),
                 usuarioGuardado.getNombre(),
                 usuarioGuardado.getEmail());
+    }
+
+    public Page<UsuarioResponse> listarUsuarios(Pageable pageable) {
+        return repoUsuario.findAll(pageable).map(usuario -> new UsuarioResponse(
+                String.valueOf(usuario.getId()),
+                usuario.getNombre(),
+                usuario.getEmail()));
     }
 }
