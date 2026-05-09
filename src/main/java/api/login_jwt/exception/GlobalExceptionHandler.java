@@ -16,56 +16,66 @@ import api.login_jwt.dto.ApiResponse;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Object>> handleValidationException(
-            MethodArgumentNotValidException ex) {
+        @ExceptionHandler(MethodArgumentNotValidException.class)
+        public ResponseEntity<ApiResponse<Object>> handleValidationException(
+                        MethodArgumentNotValidException ex) {
 
-        Map<String, String> errors = new HashMap<>();
+                Map<String, String> errors = new HashMap<>();
 
-        ex.getBindingResult().getFieldErrors()
-                .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+                ex.getBindingResult().getFieldErrors()
+                                .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
 
-        return ResponseEntity
-                .badRequest()
-                .body(ApiResponse.error("Errores de validación", errors));
-    }
+                return ResponseEntity
+                                .badRequest()
+                                .body(ApiResponse.error("Errores de validación", errors));
+        }
 
-    @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<ApiResponse<Object>> handleBusinessException(
-            BusinessException ex) {
+        @ExceptionHandler(BusinessException.class)
+        public ResponseEntity<ApiResponse<Object>> handleBusinessException(
+                        BusinessException ex) {
 
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(ApiResponse.error(ex.getMessage(), ex.getErrors()));
-    }
+                return ResponseEntity
+                                .status(HttpStatus.CONFLICT)
+                                .body(ApiResponse.error(ex.getMessage(), ex.getErrors()));
+        }
 
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ApiResponse<Object>> handleInvalidJson(
-            HttpMessageNotReadableException ex) {
+        @ExceptionHandler(HttpMessageNotReadableException.class)
+        public ResponseEntity<ApiResponse<Object>> handleInvalidJson(
+                        HttpMessageNotReadableException ex) {
 
-        return ResponseEntity
-                .badRequest()
-                .body(ApiResponse.error("El cuerpo de la solicitud no es válido o tiene formato JSON incorrecto"));
-    }
+                return ResponseEntity
+                                .badRequest()
+                                .body(ApiResponse.error(
+                                                "El cuerpo de la solicitud no es válido o tiene formato JSON incorrecto"));
+        }
 
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ApiResponse<Object>> handleTypeMismatch(
-            MethodArgumentTypeMismatchException ex) {
+        @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+        public ResponseEntity<ApiResponse<Object>> handleTypeMismatch(
+                        MethodArgumentTypeMismatchException ex) {
 
-        Map<String, String> errors = new HashMap<>();
-        errors.put(ex.getName(), "El tipo de dato enviado no es válido");
+                Map<String, String> errors = new HashMap<>();
+                errors.put(ex.getName(), "El tipo de dato enviado no es válido");
 
-        return ResponseEntity
-                .badRequest()
-                .body(ApiResponse.error("Parámetros inválidos", errors));
-    }
+                return ResponseEntity
+                                .badRequest()
+                                .body(ApiResponse.error("Parámetros inválidos", errors));
+        }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Object>> handleGeneralException(
-            Exception ex) {
+        @ExceptionHandler(Exception.class)
+        public ResponseEntity<ApiResponse<Object>> handleGeneralException(
+                        Exception ex) {
 
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("Ocurrió un error interno en el servidor"));
-    }
+                return ResponseEntity
+                                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(ApiResponse.error("Ocurrió un error interno en el servidor"));
+        }
+
+        @ExceptionHandler(ResourceNotFoundException.class)
+        public ResponseEntity<ApiResponse<Object>> handleResourceNotFoundException(
+                        ResourceNotFoundException ex) {
+
+                return ResponseEntity
+                                .status(HttpStatus.NOT_FOUND)
+                                .body(ApiResponse.error(ex.getMessage()));
+        }
 }
