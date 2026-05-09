@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import api.login_jwt.dto.pagination.PaginatedResponse;
 import api.login_jwt.dto.pagination.PaginationResponse;
 import api.login_jwt.dto.usuario.Request.RequestCreateUser;
+import api.login_jwt.dto.usuario.Request.RequestUpdateUser;
 import api.login_jwt.dto.usuario.response.UsuarioResponse;
 import api.login_jwt.entity.TUsuario;
 import api.login_jwt.exception.ResourceNotFoundException;
@@ -63,6 +64,25 @@ public class UsuarioService {
         @Transactional(readOnly = true)
         public UsuarioResponse buscarPorId(String id) {
                 return usuarioMapper.toDto(findOrThrow(id));
+        }
+
+        @Transactional
+        public UsuarioResponse actualizarUsuario(String id, RequestUpdateUser request) {
+                TUsuario usuario = findOrThrow(id);
+                usuarioValidator.validarActualizacion(id, request);
+
+                usuarioMapper.updateUser(request, usuario);
+
+                if (request.getPassword() != null && !request.getPassword().isBlank()) {
+                        usuario.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+                }
+
+                return usuarioMapper.toDto(repoUsuario.save(usuario));
+        }
+
+        @Transactional
+        public void eliminarUsuario(String id) {
+                repoUsuario.delete(findOrThrow(id));
         }
 
         private TUsuario findOrThrow(String id) {
